@@ -77,7 +77,7 @@ This mod receives a **low update frequency** — it is maintained in spare time 
 
 ## Credits
 
-- [Computronics](https://github.com/Vexatos/Computronics) by asie — the original mod this is ported from.
+- [Computronics](https://github.com/Vexatos/Computronics)  — the original mod this is ported from.
 - [OpenComputers](https://github.com/PC-Logix/OpenComputers) — the mod this integrates with.
 - [music.madefor.cc](https://github.com/SquidDev-CC/music.madefor.cc) — a handy DFPWM converter.
 
