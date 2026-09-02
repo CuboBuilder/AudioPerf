@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "audio_perf:block/tape_drive",
+      "y": 0
+    },
+    "facing=south": {
+      "model": "audio_perf:block/tape_drive",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "audio_perf:block/tape_drive",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "audio_perf:block/tape_drive",
+      "y": 90
+    }
+  }
+}

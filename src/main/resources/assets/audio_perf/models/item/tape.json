@@ -1,0 +1,18 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "audio_perf:item/tape"
+  },
+  "overrides": [
+    { "predicate": { "custom_model_data": 1 }, "model": "audio_perf:item/tape/tape_0" },
+    { "predicate": { "custom_model_data": 2 }, "model": "audio_perf:item/tape/tape_1" },
+    { "predicate": { "custom_model_data": 3 }, "model": "audio_perf:item/tape/tape_2" },
+    { "predicate": { "custom_model_data": 4 }, "model": "audio_perf:item/tape/tape_3" },
+    { "predicate": { "custom_model_data": 5 }, "model": "audio_perf:item/tape/tape_4" },
+    { "predicate": { "custom_model_data": 6 }, "model": "audio_perf:item/tape/tape_5" },
+    { "predicate": { "custom_model_data": 7 }, "model": "audio_perf:item/tape/tape_6" },
+    { "predicate": { "custom_model_data": 8 }, "model": "audio_perf:item/tape/tape_7" },
+    { "predicate": { "custom_model_data": 9 }, "model": "audio_perf:item/tape/tape_8" },
+    { "predicate": { "custom_model_data": 10 }, "model": "audio_perf:item/tape/tape_9" }
+  ]
+}

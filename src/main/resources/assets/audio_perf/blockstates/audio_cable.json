@@ -1,0 +1,196 @@
+{
+  "variants": {
+    "down=false,up=false,north=false,south=false,west=false,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_00"
+    },
+    "down=true,up=false,north=false,south=false,west=false,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_01"
+    },
+    "down=false,up=true,north=false,south=false,west=false,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_02"
+    },
+    "down=true,up=true,north=false,south=false,west=false,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_03"
+    },
+    "down=false,up=false,north=true,south=false,west=false,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_04"
+    },
+    "down=true,up=false,north=true,south=false,west=false,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_05"
+    },
+    "down=false,up=true,north=true,south=false,west=false,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_06"
+    },
+    "down=true,up=true,north=true,south=false,west=false,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_07"
+    },
+    "down=false,up=false,north=false,south=true,west=false,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_08"
+    },
+    "down=true,up=false,north=false,south=true,west=false,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_09"
+    },
+    "down=false,up=true,north=false,south=true,west=false,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_0a"
+    },
+    "down=true,up=true,north=false,south=true,west=false,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_0b"
+    },
+    "down=false,up=false,north=true,south=true,west=false,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_0c"
+    },
+    "down=true,up=false,north=true,south=true,west=false,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_0d"
+    },
+    "down=false,up=true,north=true,south=true,west=false,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_0e"
+    },
+    "down=true,up=true,north=true,south=true,west=false,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_0f"
+    },
+    "down=false,up=false,north=false,south=false,west=true,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_10"
+    },
+    "down=true,up=false,north=false,south=false,west=true,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_11"
+    },
+    "down=false,up=true,north=false,south=false,west=true,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_12"
+    },
+    "down=true,up=true,north=false,south=false,west=true,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_13"
+    },
+    "down=false,up=false,north=true,south=false,west=true,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_14"
+    },
+    "down=true,up=false,north=true,south=false,west=true,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_15"
+    },
+    "down=false,up=true,north=true,south=false,west=true,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_16"
+    },
+    "down=true,up=true,north=true,south=false,west=true,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_17"
+    },
+    "down=false,up=false,north=false,south=true,west=true,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_18"
+    },
+    "down=true,up=false,north=false,south=true,west=true,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_19"
+    },
+    "down=false,up=true,north=false,south=true,west=true,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_1a"
+    },
+    "down=true,up=true,north=false,south=true,west=true,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_1b"
+    },
+    "down=false,up=false,north=true,south=true,west=true,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_1c"
+    },
+    "down=true,up=false,north=true,south=true,west=true,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_1d"
+    },
+    "down=false,up=true,north=true,south=true,west=true,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_1e"
+    },
+    "down=true,up=true,north=true,south=true,west=true,east=false": {
+      "model": "audio_perf:block/audio_cable/cable_1f"
+    },
+    "down=false,up=false,north=false,south=false,west=false,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_20"
+    },
+    "down=true,up=false,north=false,south=false,west=false,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_21"
+    },
+    "down=false,up=true,north=false,south=false,west=false,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_22"
+    },
+    "down=true,up=true,north=false,south=false,west=false,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_23"
+    },
+    "down=false,up=false,north=true,south=false,west=false,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_24"
+    },
+    "down=true,up=false,north=true,south=false,west=false,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_25"
+    },
+    "down=false,up=true,north=true,south=false,west=false,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_26"
+    },
+    "down=true,up=true,north=true,south=false,west=false,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_27"
+    },
+    "down=false,up=false,north=false,south=true,west=false,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_28"
+    },
+    "down=true,up=false,north=false,south=true,west=false,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_29"
+    },
+    "down=false,up=true,north=false,south=true,west=false,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_2a"
+    },
+    "down=true,up=true,north=false,south=true,west=false,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_2b"
+    },
+    "down=false,up=false,north=true,south=true,west=false,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_2c"
+    },
+    "down=true,up=false,north=true,south=true,west=false,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_2d"
+    },
+    "down=false,up=true,north=true,south=true,west=false,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_2e"
+    },
+    "down=true,up=true,north=true,south=true,west=false,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_2f"
+    },
+    "down=false,up=false,north=false,south=false,west=true,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_30"
+    },
+    "down=true,up=false,north=false,south=false,west=true,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_31"
+    },
+    "down=false,up=true,north=false,south=false,west=true,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_32"
+    },
+    "down=true,up=true,north=false,south=false,west=true,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_33"
+    },
+    "down=false,up=false,north=true,south=false,west=true,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_34"
+    },
+    "down=true,up=false,north=true,south=false,west=true,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_35"
+    },
+    "down=false,up=true,north=true,south=false,west=true,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_36"
+    },
+    "down=true,up=true,north=true,south=false,west=true,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_37"
+    },
+    "down=false,up=false,north=false,south=true,west=true,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_38"
+    },
+    "down=true,up=false,north=false,south=true,west=true,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_39"
+    },
+    "down=false,up=true,north=false,south=true,west=true,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_3a"
+    },
+    "down=true,up=true,north=false,south=true,west=true,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_3b"
+    },
+    "down=false,up=false,north=true,south=true,west=true,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_3c"
+    },
+    "down=true,up=false,north=true,south=true,west=true,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_3d"
+    },
+    "down=false,up=true,north=true,south=true,west=true,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_3e"
+    },
+    "down=true,up=true,north=true,south=true,west=true,east=true": {
+      "model": "audio_perf:block/audio_cable/cable_3f"
+    }
+  }
+}

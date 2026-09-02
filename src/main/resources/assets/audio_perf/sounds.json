@@ -1,0 +1,17 @@
+{
+  "tape_insert": {
+    "sounds": [
+      "audio_perf:tape_insert"
+    ]
+  },
+  "tape_eject": {
+    "sounds": [
+      "audio_perf:tape_eject"
+    ]
+  },
+  "tape_rewind": {
+    "sounds": [
+      "audio_perf:tape_rewind"
+    ]
+  }
+}

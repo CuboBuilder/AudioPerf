@@ -1,0 +1,277 @@
+package li.cil.oc.api;
+
+import li.cil.oc.api.fs.Label;
+import li.cil.oc.api.network.EnvironmentHost;
+import li.cil.oc.api.network.ManagedEnvironment;
+import li.cil.oc.api.network.Visibility;
+import net.minecraft.resources.ResourceLocation;
+
+/**
+ * This class provides factory methods for creating file systems that are
+ * compatible with the built-in file system driver.
+ * <br>
+ * File systems created this way and wrapped in a managed environment via
+ * {@link #asManagedEnvironment} or its overloads will appear as
+ * {@code filesystem} components in the component network. Note that the
+ * component's visibility is set to {@link Visibility#Neighbors} per default. If you wish
+ * to change the file system's visibility (e.g. like the disk drive does) you
+ * must cast the environment's node to {@link li.cil.oc.api.network.Component}
+ * and set the visibility to the desired value.
+ * <br>
+ * Note that these methods should <em>not</em> be called in the pre-init phase,
+ * since the {@link API#fileSystem} may not have been initialized
+ * at that time. Only start calling these methods in the init phase or later.
+ */
+public final class FileSystem {
+    /**
+     * Creates a new file system based on a mod-specific resource location where
+     * the namespace refers to the mod and the resource path denotes a
+     * (mandatory) subpath relative to that mod's assets directory.
+     * <br>
+     * If {@code location} is stored in a JAR file, this will create a read-only
+     * file system based on that JAR file. If {@code location} is stored in the
+     * native file system, this will create a read-only file system from the the
+     * location constructed as described above (relative to the root of the
+     * namespace).
+     * <br>
+     * If the specified path cannot be located, the creation fails and this
+     * returns {@code null}.
+     *
+     * @param location the location where the file system's contents are stored.
+     * @return a file system wrapping the specified resource.
+     */
+    public static li.cil.oc.api.fs.FileSystem fromResource(final ResourceLocation location) {
+        if (API.fileSystem != null)
+            return API.fileSystem.fromResource(location);
+        return null;
+    }
+
+    /**
+     * Creates a new <em>writable</em> file system in the save folder.
+     * <br>
+     * This will create a folder, if necessary, and create a writable virtual
+     * file system based in that folder. The actual path is based in a sub-
+     * folder of the save folder. The actual path is built like this:
+     * <pre>"saves/" + WORLD_NAME + "/opencomputers/" + root</pre>
+     * The first part may differ, in particular for servers.
+     * <br>
+     * Usually the name will be the address of the node used to represent the
+     * file system.
+     * <br>
+     * Note that by default file systems are "buffered", meaning that any
+     * changes made to them are only saved to disk when the world is saved. This
+     * ensured that the file system contents do not go "out of sync" when the
+     * game crashes, but introduces additional memory overhead, since all files
+     * in the file system have to be kept in memory.
+     *
+     * @param root     the name of the file system.
+     * @param capacity the amount of space in bytes to allow being used.
+     * @param buffered whether data should only be written to disk when saving.
+     * @return a file system wrapping the specified folder.
+     */
+    public static li.cil.oc.api.fs.FileSystem fromSaveDirectory(final String root, final long capacity, final boolean buffered) {
+        if (API.fileSystem != null)
+            return API.fileSystem.fromSaveDirectory(root, capacity, buffered);
+        return null;
+    }
+
+    /**
+     * Same as {@link #fromSaveDirectory(String, long, boolean)} with the
+     * {@code buffered} parameter being true, i.e. will always create a
+     * buffered file system.
+     *
+     * @param root     the name of the file system.
+     * @param capacity the amount of space in bytes to allow being used.
+     * @return a file system wrapping the specified folder.
+     */
+    public static li.cil.oc.api.fs.FileSystem fromSaveDirectory(final String root, final long capacity) {
+        return fromSaveDirectory(root, capacity, true);
+    }
+
+    /**
+     * Creates a new <em>writable</em> file system that resides in memory.
+     * <br>
+     * Any contents created and written on this file system will be lost when
+     * the node is removed from the network.
+     * <br>
+     * This is used for computers' {@code /tmp} mount, for example.
+     *
+     * @param capacity the capacity of the file system.
+     * @return a file system residing in memory.
+     */
+    public static li.cil.oc.api.fs.FileSystem fromMemory(final long capacity) {
+        if (API.fileSystem != null)
+            return API.fileSystem.fromMemory(capacity);
+        return null;
+    }
+
+    /**
+     * Wrap a file system retrieved via one of the {@code from???} methods to
+     * make it read-only.
+     *
+     * @param fileSystem the file system to wrap.
+     * @return the specified file system wrapped to be read-only.
+     */
+    public static li.cil.oc.api.fs.FileSystem asReadOnly(final li.cil.oc.api.fs.FileSystem fileSystem) {
+        if (API.fileSystem != null)
+            return API.fileSystem.asReadOnly(fileSystem);
+        return null;
+    }
+
+    /**
+     * Creates a network node that makes the specified file system available via
+     * the common file system driver.
+     * <br>
+     * This can be useful for providing some data if you don't wish to implement
+     * your own driver. Which will probably be most of the time. If you need
+     * more control over the node, implement your own, and connect this one to
+     * it. In that case you will have to forward any disk driver messages to the
+     * node, though.
+     * <br>
+     * The container parameter is used to give the file system some physical
+     * relation to the world, for example this is used by hard drives to send
+     * the disk event notifications to the client that are used to play disk
+     * access sounds.
+     * <br>
+     * The container may be {@code null}, if no such context can be provided.
+     * <br>
+     * The access sound is the name of the sound effect to play when the file
+     * system is accessed, for example by listing a directory or reading from
+     * a file. It may be {@code null} to create a silent file system.
+     * <br>
+     * The speed multiplier controls how fast read and write operations on the
+     * file system are. It must be a value in [1,6], and controls the access
+     * speed, with the default being one.
+     * For reference, floppies are using the default, hard drives scale with
+     * their tiers, i.e. a tier one hard drive uses speed two, tier three uses
+     * speed four.
+     *
+     * @param fileSystem  the file system to wrap.
+     * @param label       the label of the file system.
+     * @param host        the tile entity containing the file system.
+     * @param accessSound the name of the sound effect to play when the file
+     *                    system is accessed. This has to be the fully
+     *                    qualified resource name, e.g.
+     *                    {@code opencomputers:floppy_access}.
+     * @param speed       the speed multiplier for this file system.
+     * @return the network node wrapping the file system.
+     */
+    public static ManagedEnvironment asManagedEnvironment(final li.cil.oc.api.fs.FileSystem fileSystem, final Label label, final EnvironmentHost host, final String accessSound, int speed) {
+        if (API.fileSystem != null)
+            return API.fileSystem.asManagedEnvironment(fileSystem, label, host, accessSound, speed);
+        return null;
+    }
+
+    /**
+     * Creates a network node that makes the specified file system available via
+     * the common file system driver.
+     * <br>
+     * Creates a file system with the a read-only label and the specified
+     * access sound and file system speed.
+     *
+     * @param fileSystem  the file system to wrap.
+     * @param label       the label of the file system.
+     * @param host        the tile entity containing the file system.
+     * @param accessSound the name of the sound effect to play when the file
+     *                    system is accessed. This has to be the fully
+     *                    qualified resource name, e.g.
+     *                    {@code opencomputers:floppy_access}.
+     * @param speed       the speed multiplier for this file system.
+     * @return the network node wrapping the file system.
+     */
+    public static ManagedEnvironment asManagedEnvironment(final li.cil.oc.api.fs.FileSystem fileSystem, final String label, final EnvironmentHost host, final String accessSound, int speed) {
+        if (API.fileSystem != null)
+            return API.fileSystem.asManagedEnvironment(fileSystem, label, host, accessSound, speed);
+        return null;
+    }
+
+    /**
+     * Creates a network node that makes the specified file system available via
+     * the common file system driver.
+     * <br>
+     * Creates a file system with the specified label and the specified access
+     * sound, using the default file system speed.
+     *
+     * @param fileSystem  the file system to wrap.
+     * @param label       the label of the file system.
+     * @param host        the tile entity containing the file system.
+     * @param accessSound the name of the sound effect to play when the file
+     *                    system is accessed. This has to be the fully
+     *                    qualified resource name, e.g.
+     *                    {@code opencomputers:floppy_access}.
+     * @return the network node wrapping the file system.
+     */
+    public static ManagedEnvironment asManagedEnvironment(final li.cil.oc.api.fs.FileSystem fileSystem, final Label label, final EnvironmentHost host, final String accessSound) {
+        return asManagedEnvironment(fileSystem, label, host, accessSound, 1);
+    }
+
+    /**
+     * Creates a network node that makes the specified file system available via
+     * the common file system driver.
+     * <br>
+     * Creates a file system with a read-only label and the specified access
+     * sound, using the default file system speed.
+     *
+     * @param fileSystem  the file system to wrap.
+     * @param label       the read-only label of the file system.
+     * @param host        the tile entity containing the file system.
+     * @param accessSound the name of the sound effect to play when the file
+     *                    system is accessed. This has to be the fully
+     *                    qualified resource name, e.g.
+     *                    {@code opencomputers:floppy_access}.
+     * @return the network node wrapping the file system.
+     */
+    public static ManagedEnvironment asManagedEnvironment(final li.cil.oc.api.fs.FileSystem fileSystem, final String label, final EnvironmentHost host, final String accessSound) {
+        return asManagedEnvironment(fileSystem, label, host, accessSound, 1);
+    }
+
+    /**
+     * Creates a network node that makes the specified file system available via
+     * the common file system driver.
+     * <br>
+     * Creates a file system with the specified label, without an environment
+     * and access sound, using the default file system speed.
+     *
+     * @param fileSystem the file system to wrap.
+     * @param label      the label of the file system.
+     * @return the network node wrapping the file system.
+     */
+    public static ManagedEnvironment asManagedEnvironment(final li.cil.oc.api.fs.FileSystem fileSystem, final Label label) {
+        return asManagedEnvironment(fileSystem, label, null, null, 1);
+    }
+
+    /**
+     * Creates a network node that makes the specified file system available via
+     * the common file system driver.
+     * <br>
+     * Creates a file system with a read-only label, without an environment and
+     * access sound, using the default file system speed.
+     *
+     * @param fileSystem the file system to wrap.
+     * @param label      the read-only label of the file system.
+     * @return the network node wrapping the file system.
+     */
+    public static ManagedEnvironment asManagedEnvironment(final li.cil.oc.api.fs.FileSystem fileSystem, final String label) {
+        return asManagedEnvironment(fileSystem, label, null, null, 1);
+    }
+
+    /**
+     * Creates a network node that makes the specified file system available via
+     * the common file system driver.
+     * <br>
+     * Creates an unlabeled file system (i.e. the label can neither be read nor
+     * written), without an environment and access sound, using the default
+     * file system speed.
+     *
+     * @param fileSystem the file system to wrap.
+     * @return the network node wrapping the file system.
+     */
+    public static ManagedEnvironment asManagedEnvironment(final li.cil.oc.api.fs.FileSystem fileSystem) {
+        return asManagedEnvironment(fileSystem, (Label) null, null, null, 1);
+    }
+
+    // ----------------------------------------------------------------------- //
+
+    private FileSystem() {
+    }
+}

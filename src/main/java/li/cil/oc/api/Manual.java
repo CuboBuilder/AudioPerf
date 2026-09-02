@@ -1,0 +1,183 @@
+package li.cil.oc.api;
+
+import li.cil.oc.api.manual.ContentProvider;
+import li.cil.oc.api.manual.ImageProvider;
+import li.cil.oc.api.manual.ImageRenderer;
+import li.cil.oc.api.manual.PathProvider;
+import li.cil.oc.api.manual.TabIconRenderer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+
+/**
+ * This API allows interfacing with the in-game manual of OpenComputers.
+ * <br>
+ * It allows opening the manual at a desired specific page, as well as
+ * registering custom tabs and content callback handlers.
+ * <br>
+ * Note: this is a <em>client side only</em> API. It will do nothing on
+ * dedicated servers (i.e. {@code API.manual} will be {@code null}).
+ */
+public class Manual {
+    /**
+     * Register a tab to be displayed next to the manual.
+     * <br>
+     * These are intended to link to index pages, and for the time being there
+     * a relatively low number of tabs that can be displayed, so I'd ask you to
+     * only register as many tabs as actually, technically *needed*. Which will
+     * usually be one, for your main index page.
+     *
+     * @param renderer the renderer used to render the icon on your tab.
+     * @param tooltip  the unlocalized tooltip of the tab, or {@code null}.
+     * @param path     the path to the page to open when the tab is clicked.
+     */
+    public static void addTab(TabIconRenderer renderer, String tooltip, String path) {
+        if (API.manual != null)
+            API.manual.addTab(renderer, tooltip, path);
+    }
+
+    /**
+     * Register a path provider.
+     * <br>
+     * Path providers are used to find documentation entries for item stacks
+     * and blocks in the world.
+     *
+     * @param provider the provider to register.
+     */
+    public static void addProvider(PathProvider provider) {
+        if (API.manual != null)
+            API.manual.addProvider(provider);
+    }
+
+    /**
+     * Register a content provider.
+     * <br>
+     * Content providers are used to resolve paths to page content, if the
+     * standard system (using Minecraft's resource loading facilities) fails.
+     * <br>
+     * This can be useful for providing dynamic content, for example.
+     *
+     * @param provider the provider to register.
+     */
+    public static void addProvider(ContentProvider provider) {
+        if (API.manual != null)
+            API.manual.addProvider(provider);
+    }
+
+    /**
+     * Register an image provider.
+     * <br>
+     * Image providers are used to render custom content in a page. These are
+     * selected via the standard image tag of Markdown, based on the prefix of
+     * the image URL, i.e. {@code ![tooltip](prefix:data)} will select the
+     * image provider registered for the prefix {@code prefix}, and pass to
+     * it the argument {@code data}, then use the returned renderer to draw
+     * an element in the place of the tag. The provided prefix is expected to
+     * be <em>without</em> the colon ({@code :}).
+     * <br>
+     * Custom providers are only selected if a prefix is matched, otherwise
+     * it'll treat it as a relative path to an image to load via Minecraft's
+     * resource providing facilities, and display that.
+     *
+     * @param prefix   the prefix on which to use the provider.
+     * @param provider the provider to register.
+     */
+    public static void addProvider(String prefix, ImageProvider provider) {
+        if (API.manual != null)
+            API.manual.addProvider(prefix, provider);
+    }
+
+    /**
+     * Get the image renderer for the specified image path.
+     * <br>
+     * This will look for {@link ImageProvider}s registered for a prefix in the
+     * specified path. If there is no match, or the matched content provider
+     * does not provide a renderer, this will return {@code null}.
+     *
+     * @param path the path to the image to get the renderer for.
+     * @return the custom renderer for that path.
+     */
+    public static ImageRenderer imageFor(String path) {
+        if (API.manual != null)
+            return API.manual.imageFor(path);
+        return null;
+    }
+
+    // ----------------------------------------------------------------------- //
+
+    /**
+     * Look up the documentation path for the specified item stack.
+     *
+     * @param stack the stack to find the documentation path for.
+     * @return the path to the page, {@code null} if none is known.
+     */
+    public static String pathFor(ItemStack stack) {
+        if (API.manual != null)
+            return API.manual.pathFor(stack);
+        return null;
+    }
+
+    /**
+     * Look up the documentation for the specified block in the world.
+     *
+     * @param world the world containing the block.
+     * @param pos   the position of the block.
+     * @return the path to the page, {@code null} if none is known.
+     */
+    public static String pathFor(Level world, BlockPos pos) {
+        if (API.manual != null)
+            return API.manual.pathFor(world, pos);
+        return null;
+    }
+
+    /**
+     * Get the content of the documentation page at the specified location.
+     *
+     * @param path the path of the page to get the content of.
+     * @return the content of the page, or {@code null} if none exists.
+     */
+    public static Iterable<String> contentFor(String path) {
+        if (API.manual != null)
+            return API.manual.contentFor(path);
+        return null;
+    }
+
+    // ----------------------------------------------------------------------- //
+
+    /**
+     * Open the manual for the specified player.
+     * <br>
+     * If you wish to display a specific page, call {@link #navigate(String)}
+     * after this function returns, with the path to the page to show.
+     *
+     * @param player the player to open the manual for.
+     */
+    public static void openFor(Player player) {
+        if (API.manual != null)
+            API.manual.openFor(player);
+    }
+
+    /**
+     * Reset the history of the manual.
+     */
+    public static void reset() {
+        if (API.manual != null)
+            API.manual.reset();
+    }
+
+    /**
+     * Navigate to a page in the manual.
+     *
+     * @param path the path to navigate to.
+     */
+    public static void navigate(String path) {
+        if (API.manual != null)
+            API.manual.navigate(path);
+    }
+
+    // ----------------------------------------------------------------------- //
+
+    private Manual() {
+    }
+}

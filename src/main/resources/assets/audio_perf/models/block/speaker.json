@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "down": "audio_perf:block/machine_bottom",
+    "up": "audio_perf:block/machine_top",
+    "north": "audio_perf:block/speaker_front",
+    "south": "audio_perf:block/machine_side",
+    "west": "audio_perf:block/machine_side",
+    "east": "audio_perf:block/machine_side",
+    "particle": "audio_perf:block/speaker_front"
+  }
+}

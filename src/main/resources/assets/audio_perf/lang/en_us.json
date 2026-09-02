@@ -1,0 +1,11 @@
+{
+  "itemGroup.audio_perf": "AudioPerf",
+  "block.audio_perf.audio_cable": "Audio Cable",
+  "block.audio_perf.tape_drive": "Tape Drive",
+  "block.audio_perf.speaker": "Speaker",
+  "item.audio_perf.tape": "Tape",
+  "container.audio_perf.tape_drive": "Tape Drive",
+  "tooltip.audio_perf.tape.length": "%s min",
+  "tooltip.audio_perf.tape.none": "No Tape",
+  "tooltip.audio_perf.tape.unnamed": "Unnamed"
+}
