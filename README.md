@@ -77,9 +77,13 @@ This mod receives a **low update frequency** — it is maintained in spare time 
 
 ## Credits
 
-- [Computronics](https://github.com/asie/Computronics) by asie — the original mod this is ported from.
-- [OpenComputers](https://github.com/MightyPirates/OpenComputers) — the mod this integrates with.
+- [Computronics](https://github.com/Vexatos/Computronics) by asie — the original mod this is ported from.
+- [OpenComputers](https://github.com/PC-Logix/OpenComputers) — the mod this integrates with.
 - [music.madefor.cc](https://github.com/SquidDev-CC/music.madefor.cc) — a handy DFPWM converter.
+
+## TODO
+- [ ] "tape" program diskette
+- [ ] proper audio cable texture
 
 ## License
 
