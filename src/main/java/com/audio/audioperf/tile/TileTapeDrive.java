@@ -132,8 +132,10 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
                 setChanged();
                 // Immediately sync state to clients via custom packet
-                PacketDistributor.sendToPlayersTrackingChunk(level, level.getChunkAt(worldPosition),
-                    new com.audio.audioperf.network.TapeDriveStateSyncPayload(worldPosition, (byte) s.ordinal()));
+                if (level instanceof ServerLevel serverLevel) {
+                    PacketDistributor.sendToPlayersTrackingChunk(serverLevel, level.getChunkAt(worldPosition),
+                        new com.audio.audioperf.network.TapeDriveStateSyncPayload(worldPosition, (byte) s.ordinal()));
+                }
             }
         }
     }
