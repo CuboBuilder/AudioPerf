@@ -82,7 +82,7 @@ This mod receives a **low update frequency** — it is maintained in spare time 
 - [music.madefor.cc](https://github.com/SquidDev-CC/music.madefor.cc) — a handy DFPWM converter.
 
 ## TODO
-- [ ] "tape" program diskette
+- [x] "tape" program diskette
 - [ ] proper audio cable texture
 - [ ] improve tape player GUI sync
 - [ ] fix "tape speed" command

@@ -114,6 +114,8 @@ public class AudioPerf {
         this.audioManager = new DFPWMPlaybackManager(false);
         this.storage = new StorageManager();
 
+        OCIntegration.registerTapeFloppy();
+
         modEventBus.addListener(this::registerPayloads);
         modEventBus.addListener(this::registerCapabilities);
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(this::onServerStarting);

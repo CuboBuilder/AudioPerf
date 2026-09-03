@@ -1,6 +1,7 @@
 package com.audio.audioperf.tape;
 
 import com.audio.audioperf.AudioPerf;
+import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.io.File;
@@ -11,9 +12,14 @@ public class StorageManager {
     private static final Random RAND = new Random();
 
     private File saveDir() {
-        File currentSaveRootDirectory = ServerLifecycleHooks.getCurrentServer().getServerDirectory().toFile();
-        File saveDir = new File(currentSaveRootDirectory, AudioPerf.MODID);
-        if (!saveDir.exists() && !saveDir.mkdir()) {
+        var server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) {
+            AudioPerf.LOGGER.error("Server is null, cannot determine save directory");
+            return new File(AudioPerf.MODID); // fallback
+        }
+        File worldRoot = server.getWorldPath(LevelResource.ROOT).toFile();
+        File saveDir = new File(worldRoot, AudioPerf.MODID);
+        if (!saveDir.exists() && !saveDir.mkdirs()) {
             AudioPerf.LOGGER.error("COULD NOT CREATE SAVE DIRECTORY: " + saveDir.getAbsolutePath());
         }
         return saveDir;

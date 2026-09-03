@@ -38,6 +38,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -129,6 +130,9 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
             if (level != null && !level.isClientSide) {
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
                 setChanged();
+                // Immediately sync state to clients via custom packet
+                PacketDistributor.sendToPlayersTrackingChunk(level, level.getChunkAt(worldPosition),
+                    new com.audio.audioperf.network.TapeDriveStateSyncPayload(worldPosition, (byte) s.ordinal()));
             }
         }
     }

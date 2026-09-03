@@ -68,9 +68,29 @@ public abstract class AudioPacket {
      */
     public final void sendPacket() {
         net.minecraft.server.MinecraftServer server = com.audio.audioperf.AudioPerf.getServer();
-        if (server == null) {
+        if (server == null || receivers.isEmpty()) {
             return;
         }
+
+        // Compute bounding box of all receiver positions expanded by their max distance
+        double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE, minZ = Double.MAX_VALUE;
+        double maxX = -Double.MAX_VALUE, maxY = -Double.MAX_VALUE, maxZ = -Double.MAX_VALUE;
+        int maxDist = 0;
+        for (IAudioReceiver r : receivers) {
+            Vec3 pos = r.getSoundPos();
+            int d = r.getSoundDistance();
+            if (d > maxDist) maxDist = d;
+            double x = pos.x, y = pos.y, z = pos.z;
+            if (x < minX) minX = x;
+            if (y < minY) minY = y;
+            if (z < minZ) minZ = z;
+            if (x > maxX) maxX = x;
+            if (y > maxY) maxY = y;
+            if (z > maxZ) maxZ = z;
+        }
+        // Expand by max distance
+        minX -= maxDist; minY -= maxDist; minZ -= maxDist;
+        maxX += maxDist; maxY += maxDist; maxZ += maxDist;
 
         ByteBuf data = Unpooled.buffer();
         writeData(data);
@@ -80,6 +100,11 @@ public abstract class AudioPacket {
 
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             if (player == null || player.level() == null) {
+                continue;
+            }
+            // Quick bounding box cull
+            double px = player.getX(), py = player.getY(), pz = player.getZ();
+            if (px < minX || px > maxX || py < minY || py > maxY || pz < minZ || pz > maxZ) {
                 continue;
             }
 
