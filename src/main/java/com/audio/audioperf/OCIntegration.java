@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import net.neoforged.fml.ModList;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
 public class OCIntegration {
@@ -16,6 +17,18 @@ public class OCIntegration {
             ResourceLocation loc = ResourceLocation.fromNamespaceAndPath("audio_perf", "loot/tape");
             Callable<li.cil.oc.api.fs.FileSystem> factory = () -> {
                 li.cil.oc.api.fs.FileSystem fs = FileSystem.fromResource(loc);
+                if (fs == null) {
+                    // Fallback: try using reflection to call FileSystem.fromClass if available
+                    try {
+                        Method fromClass = li.cil.oc.api.FileSystem.class.getMethod("fromClass", Class.class, String.class, String.class);
+                        fs = (li.cil.oc.api.fs.FileSystem) fromClass.invoke(null, AudioPerf.class, "audio_perf", "loot/tape");
+                        if (fs != null) {
+                            AudioPerf.LOGGER.info("Loaded tape filesystem via fromClass fallback");
+                        }
+                    } catch (Exception e) {
+                        AudioPerf.LOGGER.warn("Fallback via fromClass failed", e);
+                    }
+                }
                 if (fs == null) {
                     AudioPerf.LOGGER.error("Failed to load tape filesystem from {}", loc);
                     return null;
