@@ -82,7 +82,7 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
         super(AudioPerfBlockEntities.TAPE_DRIVE.get(), pos, state);
         this.state = new TapeDriveState();
         this.node = Network.newNode(this, Visibility.Network)
-                .withComponent("tape_drive", Visibility.Neighbors)
+                .withComponent("tape_drive", Visibility.Network)
                 .create();
     }
 
