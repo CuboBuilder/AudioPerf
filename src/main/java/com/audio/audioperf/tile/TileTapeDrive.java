@@ -240,12 +240,18 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
     @Override
     public void setRemoved() {
         unloadStorage();
+        if (node != null) {
+            node.remove();
+        }
         super.setRemoved();
     }
 
     @Override
     public void onChunkUnloaded() {
         unloadStorage();
+        if (node != null) {
+            node.remove();
+        }
         super.onChunkUnloaded();
     }
 

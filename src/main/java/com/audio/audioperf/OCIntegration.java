@@ -25,18 +25,50 @@ public class OCIntegration {
             }
 
             Callable<li.cil.oc.api.fs.FileSystem> factory = () -> {
-                AudioPerf.LOGGER.info("Creating memory filesystem with tape.lua");
-                try (java.io.InputStream in = AudioPerf.class.getResourceAsStream("/assets/audio_perf/loot/tape/usr/bin/tape.lua")) {
-                    if (in == null) {
-                        AudioPerf.LOGGER.error("tape.lua not found in classpath");
-                        return null;
+                // Try to load from OC resource system first
+                li.cil.oc.api.fs.FileSystem fs = FileSystem.fromResource(loc);
+                if (fs != null) {
+                    AudioPerf.LOGGER.info("Loaded tape filesystem via fromResource");
+                    return FileSystem.asReadOnly(fs);
+                }
+                // Try via fromClass reflection (OC's internal method)
+                try {
+                    java.lang.reflect.Method fromClass = li.cil.oc.api.FileSystem.class.getMethod("fromClass", Class.class, String.class, String.class);
+                    fs = (li.cil.oc.api.fs.FileSystem) fromClass.invoke(null, AudioPerf.class, "audio_perf", "loot/tape");
+                    if (fs != null) {
+                        AudioPerf.LOGGER.info("Loaded tape filesystem via fromClass fallback");
+                        return FileSystem.asReadOnly(fs);
                     }
+                } catch (Exception e) {
+                    AudioPerf.LOGGER.warn("fromClass fallback failed", e);
+                }
+                // Ultimate fallback: memory filesystem, read from classpath
+                AudioPerf.LOGGER.info("Falling back to memory filesystem for tape.lua");
+                java.io.InputStream in = null;
+                String[] paths = {
+                    "/assets/audio_perf/loot/tape/usr/bin/tape.lua",
+                    "assets/audio_perf/loot/tape/usr/bin/tape.lua",
+                    "/audio_perf/loot/tape/usr/bin/tape.lua",
+                    "audio_perf/loot/tape/usr/bin/tape.lua"
+                };
+                for (String path : paths) {
+                    AudioPerf.LOGGER.info("Trying resource path: {}", path);
+                    in = AudioPerf.class.getResourceAsStream(path);
+                    if (in != null) {
+                        AudioPerf.LOGGER.info("Found tape.lua at: {}", path);
+                        break;
+                    }
+                }
+                if (in == null) {
+                    AudioPerf.LOGGER.error("tape.lua not found in classpath with any variant");
+                    return null;
+                }
+                try (in) {
                     byte[] content = in.readAllBytes();
                     long capacity = content.length + 1024;
                     li.cil.oc.api.fs.FileSystem memFs = FileSystem.fromMemory(capacity);
                     memFs.makeDirectory("/usr");
                     memFs.makeDirectory("/usr/bin");
-                    // Write the file using OC file API
                     int handle = memFs.open("/usr/bin/tape.lua", li.cil.oc.api.fs.Mode.Write);
                     li.cil.oc.api.fs.Handle h = memFs.getHandle(handle);
                     h.write(content);
