@@ -44,7 +44,7 @@ public class OCIntegration {
                 }
                 // Ultimate fallback: memory filesystem, read from classpath
                 AudioPerf.LOGGER.info("Falling back to memory filesystem for tape.lua");
-                java.io.InputStream in = null;
+                java.io.InputStream foundStream = null;
                 String[] paths = {
                     "/assets/audio_perf/loot/tape/usr/bin/tape.lua",
                     "assets/audio_perf/loot/tape/usr/bin/tape.lua",
@@ -53,17 +53,18 @@ public class OCIntegration {
                 };
                 for (String path : paths) {
                     AudioPerf.LOGGER.info("Trying resource path: {}", path);
-                    in = AudioPerf.class.getResourceAsStream(path);
-                    if (in != null) {
+                    java.io.InputStream test = AudioPerf.class.getResourceAsStream(path);
+                    if (test != null) {
+                        foundStream = test;
                         AudioPerf.LOGGER.info("Found tape.lua at: {}", path);
                         break;
                     }
                 }
-                if (in == null) {
+                if (foundStream == null) {
                     AudioPerf.LOGGER.error("tape.lua not found in classpath with any variant");
                     return null;
                 }
-                try (in) {
+                try (java.io.InputStream in = foundStream) {
                     byte[] content = in.readAllBytes();
                     long capacity = content.length + 1024;
                     li.cil.oc.api.fs.FileSystem memFs = FileSystem.fromMemory(capacity);
