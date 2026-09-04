@@ -16,7 +16,22 @@ public class OCIntegration {
             ResourceLocation loc = ResourceLocation.fromNamespaceAndPath("audio_perf", "loot/tape");
             Callable<li.cil.oc.api.fs.FileSystem> factory = () -> {
                 li.cil.oc.api.fs.FileSystem fs = FileSystem.fromResource(loc);
-                return fs != null ? FileSystem.asReadOnly(fs) : null;
+                if (fs == null) {
+                    // Fallback: try using fromClass with the mod class
+                    fs = FileSystem.fromClass(AudioPerf.class, "audio_perf", "loot/tape");
+                }
+                if (fs == null) {
+                    AudioPerf.LOGGER.error("Failed to load tape filesystem from {}", loc);
+                    return null;
+                }
+                // Log contents to verify
+                try {
+                    String[] files = fs.list("/");
+                    AudioPerf.LOGGER.info("Tape filesystem root contents: {}", String.join(", ", files));
+                } catch (Exception e) {
+                    AudioPerf.LOGGER.warn("Could not list filesystem root", e);
+                }
+                return FileSystem.asReadOnly(fs);
             };
             Items.registerFloppy("tape", loc, DyeColor.WHITE, factory, true);
             IMC.registerProgramDiskLabel("tape", "tape", "Lua 5.2", "Lua 5.3", "LuaJ");
