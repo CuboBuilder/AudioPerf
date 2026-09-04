@@ -17,10 +17,6 @@ public class OCIntegration {
             Callable<li.cil.oc.api.fs.FileSystem> factory = () -> {
                 li.cil.oc.api.fs.FileSystem fs = FileSystem.fromResource(loc);
                 if (fs == null) {
-                    // Fallback: try using fromClass with the mod class
-                    fs = FileSystem.fromClass(AudioPerf.class, "audio_perf", "loot/tape");
-                }
-                if (fs == null) {
                     AudioPerf.LOGGER.error("Failed to load tape filesystem from {}", loc);
                     return null;
                 }
