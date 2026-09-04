@@ -25,7 +25,6 @@ public class OCIntegration {
             }
 
             Callable<li.cil.oc.api.fs.FileSystem> factory = () -> {
-                // Always create a memory filesystem with tape.lua to ensure it works
                 AudioPerf.LOGGER.info("Creating memory filesystem with tape.lua");
                 try (java.io.InputStream in = AudioPerf.class.getResourceAsStream("/assets/audio_perf/loot/tape/usr/bin/tape.lua")) {
                     if (in == null) {
@@ -37,18 +36,23 @@ public class OCIntegration {
                     li.cil.oc.api.fs.FileSystem memFs = FileSystem.fromMemory(capacity);
                     memFs.makeDirectory("/usr");
                     memFs.makeDirectory("/usr/bin");
-                    try (java.io.OutputStream out = memFs.open("/usr/bin/tape.lua", li.cil.oc.api.fs.FileSystem.WriteMode.WRITE)) {
-                        out.write(content);
-                    }
-                    // Verify the file was written
+                    // Write the file using OC file API
+                    int handle = memFs.open("/usr/bin/tape.lua", li.cil.oc.api.fs.Mode.WRITE);
+                    li.cil.oc.api.fs.Handle h = memFs.getHandle(handle);
+                    h.write(content);
+                    h.close();
+                    // Verify
                     String[] rootFiles = memFs.list("/");
                     AudioPerf.LOGGER.info("Memory FS root contents: {}", String.join(", ", rootFiles));
-                    try (java.io.InputStream verifyIn = memFs.open("/usr/bin/tape.lua", li.cil.oc.api.fs.FileSystem.ReadMode.READ)) {
-                        if (verifyIn.available() == content.length) {
-                            AudioPerf.LOGGER.info("Memory FS verification successful");
-                        } else {
-                            AudioPerf.LOGGER.warn("Memory FS verification failed: file size mismatch");
-                        }
+                    int readHandle = memFs.open("/usr/bin/tape.lua", li.cil.oc.api.fs.Mode.READ);
+                    li.cil.oc.api.fs.Handle rh = memFs.getHandle(readHandle);
+                    byte[] readContent = new byte[content.length];
+                    int bytesRead = rh.read(readContent);
+                    rh.close();
+                    if (bytesRead == content.length) {
+                        AudioPerf.LOGGER.info("Memory FS verification successful");
+                    } else {
+                        AudioPerf.LOGGER.warn("Memory FS verification failed: read {} bytes, expected {}", bytesRead, content.length);
                     }
                     AudioPerf.LOGGER.info("Created memory filesystem with tape.lua");
                     return FileSystem.asReadOnly(memFs);
