@@ -92,7 +92,7 @@ This mod receives a **low update frequency** — it is maintained in spare time 
 
 ## TODO
 - [ ] proper audio cable texture
-- [ ] fix "tape speed" command
+- [x] fix "tape speed" command
 
 ## License
 
