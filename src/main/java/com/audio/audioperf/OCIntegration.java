@@ -48,8 +48,32 @@ public class OCIntegration {
                     }
                 }
                 if (fs == null) {
-                    AudioPerf.LOGGER.error("Failed to load tape filesystem from {}", loc);
-                    return null;
+                    // Ultimate fallback: create a memory filesystem and copy tape.lua into it
+                    AudioPerf.LOGGER.warn("All filesystem loading attempts failed; creating memory filesystem with tape.lua");
+                    // Read tape.lua from classpath
+                    try (java.io.InputStream in = AudioPerf.class.getResourceAsStream("/assets/audio_perf/loot/tape/usr/bin/tape.lua")) {
+                        if (in == null) {
+                            AudioPerf.LOGGER.error("tape.lua not found in classpath");
+                            return null;
+                        }
+                        // Read the file into a byte array
+                        byte[] content = in.readAllBytes();
+                        // Create a memory filesystem with capacity (size of content + some overhead)
+                        long capacity = content.length + 1024;
+                        li.cil.oc.api.fs.FileSystem memFs = FileSystem.fromMemory(capacity);
+                        // Create the directory structure
+                        memFs.makeDirectory("/usr");
+                        memFs.makeDirectory("/usr/bin");
+                        // Write the file
+                        try (java.io.OutputStream out = memFs.open("/usr/bin/tape.lua", li.cil.oc.api.fs.FileSystem.WriteMode.WRITE)) {
+                            out.write(content);
+                        }
+                        AudioPerf.LOGGER.info("Created memory filesystem with tape.lua");
+                        return FileSystem.asReadOnly(memFs);
+                    } catch (Exception e) {
+                        AudioPerf.LOGGER.error("Failed to create memory filesystem fallback", e);
+                        return null;
+                    }
                 }
                 // Log contents to verify
                 try {
