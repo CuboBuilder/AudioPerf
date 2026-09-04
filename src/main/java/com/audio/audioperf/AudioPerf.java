@@ -114,7 +114,7 @@ public class AudioPerf {
         this.audioManager = new DFPWMPlaybackManager(false);
         this.storage = new StorageManager();
 
-        OCIntegration.registerTapeFloppy();
+        modEventBus.addListener(this::commonSetup);
 
         modEventBus.addListener(this::registerPayloads);
         modEventBus.addListener(this::registerCapabilities);
@@ -152,6 +152,10 @@ public class AudioPerf {
             audioManager.removeAll();
         }
         serverInstance = null;
+    }
+
+    private void commonSetup(net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent event) {
+        OCIntegration.registerTapeFloppy();
     }
 
     private void registerPayloads(RegisterPayloadHandlersEvent event) {
