@@ -152,10 +152,6 @@ public class AudioPerf {
         serverInstance = null;
     }
 
-    private void commonSetup(net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent event) {
-        OCIntegration.registerTapeFloppy();
-    }
-
     private void registerPayloads(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(MODID);
         registrar.playToClient(AudioDataPayload.TYPE, AudioDataPayload.STREAM_CODEC, AudioDataPayload::handle);
