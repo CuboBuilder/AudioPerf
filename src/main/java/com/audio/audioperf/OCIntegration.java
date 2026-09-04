@@ -37,14 +37,14 @@ public class OCIntegration {
                     memFs.makeDirectory("/usr");
                     memFs.makeDirectory("/usr/bin");
                     // Write the file using OC file API
-                    int handle = memFs.open("/usr/bin/tape.lua", li.cil.oc.api.fs.Mode.WRITE);
+                    int handle = memFs.open("/usr/bin/tape.lua", li.cil.oc.api.fs.Mode.Write);
                     li.cil.oc.api.fs.Handle h = memFs.getHandle(handle);
                     h.write(content);
                     h.close();
                     // Verify
                     String[] rootFiles = memFs.list("/");
                     AudioPerf.LOGGER.info("Memory FS root contents: {}", String.join(", ", rootFiles));
-                    int readHandle = memFs.open("/usr/bin/tape.lua", li.cil.oc.api.fs.Mode.READ);
+                    int readHandle = memFs.open("/usr/bin/tape.lua", li.cil.oc.api.fs.Mode.Read);
                     li.cil.oc.api.fs.Handle rh = memFs.getHandle(readHandle);
                     byte[] readContent = new byte[content.length];
                     int bytesRead = rh.read(readContent);
