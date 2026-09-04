@@ -84,7 +84,7 @@ This mod receives a **low update frequency** — it is maintained in spare time 
 ## TODO
 - [x] "tape" program diskette
 - [ ] proper audio cable texture
-- [ ] improve tape player GUI sync
+- [x] improve tape player GUI sync
 - [ ] fix "tape speed" command
 
 ## License
