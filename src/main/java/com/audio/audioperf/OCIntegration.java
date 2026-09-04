@@ -8,6 +8,7 @@ import net.minecraft.world.item.DyeColor;
 import net.neoforged.fml.ModList;
 
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.concurrent.Callable;
 
 public class OCIntegration {
@@ -15,8 +16,25 @@ public class OCIntegration {
         if (!ModList.get().isLoaded("opencomputers")) return;
         try {
             ResourceLocation loc = ResourceLocation.fromNamespaceAndPath("audio_perf", "loot/tape");
+            // Test resource existence
+            URL resourceUrl = AudioPerf.class.getResource("/assets/audio_perf/loot/tape/usr/bin/tape.lua");
+            if (resourceUrl != null) {
+                AudioPerf.LOGGER.info("tape.lua found at: {}", resourceUrl);
+            } else {
+                AudioPerf.LOGGER.error("tape.lua NOT found in classpath");
+            }
+
             Callable<li.cil.oc.api.fs.FileSystem> factory = () -> {
                 li.cil.oc.api.fs.FileSystem fs = FileSystem.fromResource(loc);
+                if (fs == null) {
+                    AudioPerf.LOGGER.error("fromResource returned null for {}", loc);
+                    // Try with a different path: maybe it needs "loot/tape/"?
+                    ResourceLocation loc2 = ResourceLocation.fromNamespaceAndPath("audio_perf", "loot/tape/");
+                    fs = FileSystem.fromResource(loc2);
+                    if (fs != null) {
+                        AudioPerf.LOGGER.info("fromResource succeeded with trailing slash");
+                    }
+                }
                 if (fs == null) {
                     // Fallback: try using reflection to call FileSystem.fromClass if available
                     try {
