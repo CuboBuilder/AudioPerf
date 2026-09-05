@@ -118,6 +118,7 @@ public class AudioPerf {
         modEventBus.addListener(this::registerCapabilities);
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(this::onServerStarting);
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(this::onServerStopping);
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(this::registerLootDisks);
 
         AudioPacketRegistry.INSTANCE.registerType(AudioPacketDFPWM.class, new AudioPacketDFPWM.Decoder());
     }
@@ -139,6 +140,25 @@ public class AudioPerf {
                 envCap,
                 AudioPerfBlockEntities.TAPE_DRIVE.get(),
                 (be, side) -> (li.cil.oc.api.network.Environment) be);
+    }
+
+    private void registerLootDisks(final net.neoforged.neoforge.event.tick.ServerTickEvent.Pre event) {
+        if (li.cil.oc.api.API.items != null) {
+            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.unregister(this);
+            registerTapeLootDisk();
+        }
+    }
+
+    private void registerTapeLootDisk() {
+        net.minecraft.resources.ResourceLocation lootPath = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(MODID, "loot/tape");
+        li.cil.oc.api.API.items.registerFloppy(
+                "tape",
+                "tape",
+                lootPath,
+                net.minecraft.world.item.DyeColor.WHITE,
+                () -> li.cil.oc.api.FileSystem.fromResource(lootPath),
+                false
+        );
     }
 
     private void onServerStarting(net.neoforged.neoforge.event.server.ServerStartingEvent event) {
