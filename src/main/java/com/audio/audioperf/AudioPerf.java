@@ -7,6 +7,7 @@ import com.audio.audioperf.block.AudioCableBlock;
 import com.audio.audioperf.block.SpeakerBlock;
 import com.audio.audioperf.block.TapeDriveBlock;
 import com.audio.audioperf.item.ItemTape;
+import com.audio.audioperf.network.AudioCableColorPayload;
 import com.audio.audioperf.network.AudioDataPayload;
 import com.audio.audioperf.network.AudioStopPayload;
 import com.audio.audioperf.network.TapeDriveStatePayload;
@@ -174,6 +175,7 @@ public class AudioPerf {
 
     private void registerPayloads(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(MODID);
+        registrar.playToClient(AudioCableColorPayload.TYPE, AudioCableColorPayload.STREAM_CODEC, AudioCableColorPayload::handle);
         registrar.playToClient(AudioDataPayload.TYPE, AudioDataPayload.STREAM_CODEC, AudioDataPayload::handle);
         registrar.playToClient(AudioStopPayload.TYPE, AudioStopPayload.STREAM_CODEC, AudioStopPayload::handle);
         registrar.playToClient(TapeDriveStateSyncPayload.TYPE, TapeDriveStateSyncPayload.STREAM_CODEC, TapeDriveStateSyncPayload::handle);

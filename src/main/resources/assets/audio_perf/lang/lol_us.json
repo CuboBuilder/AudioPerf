@@ -1,0 +1,11 @@
+{
+  "itemGroup.audio_perf": "AudioPerf",
+  "block.audio_perf.audio_cable": "AUDIO CABEL",
+  "block.audio_perf.tape_drive": "TAPI DRIF",
+  "block.audio_perf.speaker": "SPIKER",
+  "item.audio_perf.tape": "TAPI",
+  "container.audio_perf.tape_drive": "TAPI DRIF",
+  "tooltip.audio_perf.tape.length": "%s MINUTEZ",
+  "tooltip.audio_perf.tape.none": "NU TAPI",
+  "tooltip.audio_perf.tape.unnamed": "UNNAMD"
+}

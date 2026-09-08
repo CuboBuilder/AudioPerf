@@ -8,6 +8,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
@@ -17,6 +18,7 @@ public class AudioPerfClient {
     public AudioPerfClient(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::onClientSetup);
         modEventBus.addListener(this::onRegisterScreens);
+        modEventBus.addListener(this::onRegisterBlockColors);
         NeoForge.EVENT_BUS.addListener(this::onClientDisconnect);
     }
 
@@ -28,6 +30,15 @@ public class AudioPerfClient {
 
     private void onRegisterScreens(RegisterMenuScreensEvent event) {
         event.register(AudioPerfMenus.TAPE_DRIVE.get(), TapeDriveScreen::new);
+    }
+
+    private void onRegisterBlockColors(RegisterColorHandlersEvent.Block event) {
+        event.register((state, level, pos, tintIndex) -> {
+                    if (level != null && pos != null && level.getBlockEntity(pos) instanceof com.audio.audioperf.tile.TileAudioCable cable) {
+                        return cable.getColor() | 0xFF000000;
+                    }
+                    return 0xFFCCCCCC;
+                }, AudioPerf.AUDIO_CABLE.get());
     }
 
     private void onClientDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {

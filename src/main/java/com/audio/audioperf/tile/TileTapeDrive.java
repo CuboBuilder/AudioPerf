@@ -127,6 +127,13 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
 
     public void switchState(State s) {
         if (getEnumState() != s) {
+            // Play the rewind sound when entering rewind/forward. This must happen
+            // here (not in tick), because seeking states are always entered through
+            // switchState, so the state transition is invisible to tick().
+            if (level != null && !level.isClientSide && (s == State.REWINDING || s == State.FORWARDING)) {
+                level.playSound(null, worldPosition, AudioPerf.TAPE_REWIND_SOUND.get(),
+                        net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
+            }
             state.switchState(level, s);
             if (level != null && !level.isClientSide) {
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
@@ -191,16 +198,6 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
                 internalSpeaker.receivePacket(pkt, Direction.UP);
             }
             pkt.sendPacket();
-        }
-        // Play the rewind sound once when entering rewind/forward, and stop it
-        // when leaving (prevents overlapping loops).
-        if (!level.isClientSide) {
-            boolean seeking = getEnumState() == State.REWINDING || getEnumState() == State.FORWARDING;
-            boolean wasSeeking = st == State.REWINDING || st == State.FORWARDING;
-            if (seeking && !wasSeeking) {
-                level.playSound(null, worldPosition, AudioPerf.TAPE_REWIND_SOUND.get(),
-                        net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
-            }
         }
         if (!level.isClientSide && st != getEnumState()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);

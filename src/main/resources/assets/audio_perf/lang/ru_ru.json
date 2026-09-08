@@ -1,0 +1,11 @@
+{
+  "itemGroup.audio_perf": "AudioPerf",
+  "block.audio_perf.audio_cable": "Аудиокабель",
+  "block.audio_perf.tape_drive": "Кассетный плеер",
+  "block.audio_perf.speaker": "Динамик",
+  "item.audio_perf.tape": "Кассета",
+  "container.audio_perf.tape_drive": "Кассетный плеер",
+  "tooltip.audio_perf.tape.length": "%s мин",
+  "tooltip.audio_perf.tape.none": "Нет кассеты",
+  "tooltip.audio_perf.tape.unnamed": "Безымянная"
+}

@@ -39,6 +39,16 @@ public class TileAudioCable extends BlockEntity implements IAudioReceiver {
         updateShape();
     }
 
+    public void refreshConnections() {
+        if (level == null) return;
+        updateShape();
+        BlockState state = getBlockState();
+        BlockState newState = com.audio.audioperf.block.AudioCableBlock.getStateFor(state, this);
+        if (!newState.equals(state)) {
+            level.setBlock(worldPosition, newState, 2);
+        }
+    }
+
     private void updateShape() {
         VoxelShape shape = Shapes.box(CORE_MIN, CORE_MIN, CORE_MIN, CORE_MAX, CORE_MAX, CORE_MAX);
         for (Direction dir : Direction.values()) {
@@ -62,7 +72,7 @@ public class TileAudioCable extends BlockEntity implements IAudioReceiver {
     }
 
     public VoxelShape getShape() {
-        if (cachedShape == null) updateShape();
+        updateShape();
         return cachedShape;
     }
 
@@ -72,8 +82,8 @@ public class TileAudioCable extends BlockEntity implements IAudioReceiver {
         BlockPos neighborPos = worldPosition.relative(side);
         if (!level.isLoaded(neighborPos)) return false;
         BlockEntity neighbor = level.getBlockEntity(neighborPos);
-        if (neighbor instanceof TileAudioCable) {
-            return true;
+        if (neighbor instanceof TileAudioCable cable) {
+            return cable.getColor() == this.color;
         }
         if (neighbor instanceof IAudioConnection conn) {
             return conn.connectsAudio(side.getOpposite());
@@ -114,6 +124,21 @@ public class TileAudioCable extends BlockEntity implements IAudioReceiver {
 
     public int getColor() { return color; }
     public void setColor(int color) { this.color = color; setChanged(); }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = super.getUpdateTag(registries);
+        tag.putInt("color", color);
+        return tag;
+    }
+
+    @Override
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+        super.handleUpdateTag(tag, registries);
+        if (tag.contains("color")) {
+            color = tag.getInt("color");
+        }
+    }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
