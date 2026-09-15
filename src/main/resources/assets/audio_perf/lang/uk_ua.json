@@ -1,0 +1,11 @@
+{
+  "itemGroup.audio_perf": "AudioPerf",
+  "block.audio_perf.audio_cable": "Аудіокабель",
+  "block.audio_perf.tape_drive": "Касетний програвач",
+  "block.audio_perf.speaker": "Спікер",
+  "item.audio_perf.tape": "Касета",
+  "container.audio_perf.tape_drive": "Касетний програвач",
+  "tooltip.audio_perf.tape.length": "%s мин",
+  "tooltip.audio_perf.tape.none": "Немає касети",
+  "tooltip.audio_perf.tape.unnamed": "Безіменна"
+}

@@ -7,6 +7,7 @@ import com.audio.audioperf.block.AudioCableBlock;
 import com.audio.audioperf.block.SpeakerBlock;
 import com.audio.audioperf.block.TapeDriveBlock;
 import com.audio.audioperf.item.ItemTape;
+import com.audio.audioperf.network.AudioCableColorPayload;
 import com.audio.audioperf.network.AudioDataPayload;
 import com.audio.audioperf.network.AudioStopPayload;
 import com.audio.audioperf.network.TapeDriveStatePayload;
@@ -118,6 +119,7 @@ public class AudioPerf {
         modEventBus.addListener(this::registerCapabilities);
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(this::onServerStarting);
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(this::onServerStopping);
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(this::registerLootDisks);
 
         AudioPacketRegistry.INSTANCE.registerType(AudioPacketDFPWM.class, new AudioPacketDFPWM.Decoder());
     }
@@ -141,6 +143,25 @@ public class AudioPerf {
                 (be, side) -> (li.cil.oc.api.network.Environment) be);
     }
 
+    private void registerLootDisks(final net.neoforged.neoforge.event.tick.ServerTickEvent.Pre event) {
+        if (li.cil.oc.api.API.items != null) {
+            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.unregister(this);
+            registerTapeLootDisk();
+        }
+    }
+
+    private void registerTapeLootDisk() {
+        net.minecraft.resources.ResourceLocation lootPath = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(MODID, "loot/tape");
+        li.cil.oc.api.API.items.registerFloppy(
+                "tape",
+                "tape",
+                lootPath,
+                net.minecraft.world.item.DyeColor.WHITE,
+                () -> li.cil.oc.api.FileSystem.fromResource(lootPath),
+                false
+        );
+    }
+
     private void onServerStarting(net.neoforged.neoforge.event.server.ServerStartingEvent event) {
         serverInstance = event.getServer();
     }
@@ -154,6 +175,7 @@ public class AudioPerf {
 
     private void registerPayloads(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(MODID);
+        registrar.playToClient(AudioCableColorPayload.TYPE, AudioCableColorPayload.STREAM_CODEC, AudioCableColorPayload::handle);
         registrar.playToClient(AudioDataPayload.TYPE, AudioDataPayload.STREAM_CODEC, AudioDataPayload::handle);
         registrar.playToClient(AudioStopPayload.TYPE, AudioStopPayload.STREAM_CODEC, AudioStopPayload::handle);
         registrar.playToClient(TapeDriveStateSyncPayload.TYPE, TapeDriveStateSyncPayload.STREAM_CODEC, TapeDriveStateSyncPayload::handle);

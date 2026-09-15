@@ -1,6 +1,20 @@
 {
-  "parent": "block/cube_all",
+  "parent": "minecraft:block/block",
   "textures": {
     "all": "audio_perf:block/audio_cable"
-  }
+  },
+  "elements": [
+    {
+      "from": [4, 4, 4],
+      "to": [12, 12, 12],
+      "faces": {
+        "down": {"uv": [7, 7, 11, 11], "texture": "#all", "tintindex": 0, "rotation": 0},
+        "up": {"uv": [7, 7, 11, 11], "texture": "#all", "tintindex": 0, "rotation": 0},
+        "north": {"uv": [7, 7, 11, 11], "texture": "#all", "tintindex": 0, "rotation": 0},
+        "south": {"uv": [7, 7, 11, 11], "texture": "#all", "tintindex": 0, "rotation": 0},
+        "west": {"uv": [7, 7, 11, 11], "texture": "#all", "tintindex": 0, "rotation": 0},
+        "east": {"uv": [7, 7, 11, 11], "texture": "#all", "tintindex": 0, "rotation": 0}
+      }
+    }
+  ]
 }

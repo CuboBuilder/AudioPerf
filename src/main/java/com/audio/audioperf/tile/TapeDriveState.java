@@ -23,6 +23,7 @@ public class TapeDriveState {
     private long lastCodecTime;
     public int packetSize = 1500;
     public int soundVolume = 127;
+    private float speedFactor = 1.0f;
     private ITapeStorage storage;
 
     public ITapeStorage getStorage() { return storage; }
@@ -32,6 +33,7 @@ public class TapeDriveState {
 
     public boolean setSpeed(float speed) {
         if (speed < 0.25F || speed > 2.0F) return false;
+        this.speedFactor = speed;
         this.packetSize = Math.round(1500 * speed);
         return true;
     }
@@ -68,7 +70,8 @@ public class TapeDriveState {
         int amount = storage.read(pktData, false);
         if (amount < packetSize) switchState(worldObj, State.STOPPED);
         if (amount > 0) {
-            return new AudioPacketDFPWM(source, getVolume(), 48000,
+            int sampleRate = (int)(48000 * speedFactor);
+            return new AudioPacketDFPWM(source, getVolume(), sampleRate,
                     amount == packetSize ? pktData : Arrays.copyOf(pktData, amount));
         } else {
             return null;

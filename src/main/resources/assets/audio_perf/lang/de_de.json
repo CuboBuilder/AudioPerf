@@ -1,0 +1,11 @@
+{
+  "itemGroup.audio_perf": "AudioPerf",
+  "block.audio_perf.audio_cable": "Audiokabel",
+  "block.audio_perf.tape_drive": "Bandlaufwerk",
+  "block.audio_perf.speaker": "Sprecher",
+  "item.audio_perf.tape": "Kasette",
+  "container.audio_perf.tape_drive": "Bandlaufwerk",
+  "tooltip.audio_perf.tape.length": "%s min",
+  "tooltip.audio_perf.tape.none": "Keine Kasette",
+  "tooltip.audio_perf.tape.unnamed": "Unbenannt"
+}

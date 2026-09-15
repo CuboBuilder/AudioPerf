@@ -69,4 +69,14 @@ public class TapeDriveMenu extends AbstractContainerMenu {
         return ContainerLevelAccess.create(tile.getLevel(), tile.getBlockPos()).evaluate((l, p) ->
                 l.getBlockEntity(p) == tile && player.distanceToSqr(p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5) <= 64.0, true);
     }
+
+    @Override
+    public void clicked(int slot, int dragType, net.minecraft.world.inventory.ClickType clickType, Player player) {
+        super.clicked(slot, dragType, clickType, player);
+        if (!player.level().isClientSide) {
+            // Ensure inventory changes are broadcast to all clients (like OC's AbstractMenu)
+            broadcastChanges();
+            tile.setChanged();
+        }
+    }
 }

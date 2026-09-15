@@ -23,6 +23,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
@@ -38,6 +39,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -80,7 +82,7 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
         super(AudioPerfBlockEntities.TAPE_DRIVE.get(), pos, state);
         this.state = new TapeDriveState();
         this.node = Network.newNode(this, Visibility.Network)
-                .withComponent("tape_drive", Visibility.Neighbors)
+                .withComponent("tape_drive", Visibility.Network)
                 .create();
     }
 
@@ -125,10 +127,22 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
 
     public void switchState(State s) {
         if (getEnumState() != s) {
+            // Play the rewind sound when entering rewind/forward. This must happen
+            // here (not in tick), because seeking states are always entered through
+            // switchState, so the state transition is invisible to tick().
+            if (level != null && !level.isClientSide && (s == State.REWINDING || s == State.FORWARDING)) {
+                level.playSound(null, worldPosition, AudioPerf.TAPE_REWIND_SOUND.get(),
+                        net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
+            }
             state.switchState(level, s);
             if (level != null && !level.isClientSide) {
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
                 setChanged();
+                // Immediately sync state to clients via custom packet
+                if (level instanceof ServerLevel serverLevel) {
+                    PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new net.minecraft.world.level.ChunkPos(worldPosition),
+                        new com.audio.audioperf.network.TapeDriveStateSyncPayload(worldPosition, (byte) s.ordinal()));
+                }
             }
         }
     }
@@ -185,16 +199,6 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
             }
             pkt.sendPacket();
         }
-        // Play the rewind sound once when entering rewind/forward, and stop it
-        // when leaving (prevents overlapping loops).
-        if (!level.isClientSide) {
-            boolean seeking = getEnumState() == State.REWINDING || getEnumState() == State.FORWARDING;
-            boolean wasSeeking = st == State.REWINDING || st == State.FORWARDING;
-            if (seeking && !wasSeeking) {
-                level.playSound(null, worldPosition, AudioPerf.TAPE_REWIND_SOUND.get(),
-                        net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
-            }
-        }
         if (!level.isClientSide && st != getEnumState()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             setChanged();
@@ -233,12 +237,18 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
     @Override
     public void setRemoved() {
         unloadStorage();
+        if (node != null) {
+            node.remove();
+        }
         super.setRemoved();
     }
 
     @Override
     public void onChunkUnloaded() {
         unloadStorage();
+        if (node != null) {
+            node.remove();
+        }
         super.onChunkUnloaded();
     }
 

@@ -47,7 +47,16 @@ tape.setVolume(1.0)   -- volume (0.0 .. 1.0)
 tape.getState()       -- "STOPPED", "PLAYING", "REWINDING" or "FORWARDING"
 ```
 
-A full-featured `tape` program (play, stop, rewind, wipe, label, write from a file or URL) ships with the original Computronics and can be found in the Computronics sources under `assets/computronics/loot/tape/usr/bin/tape.lua`.
+The `tape.lua` script is available on Pastebin: https://pastebin.com/6PcJEVVC. To download it, ensure you have an Internet Card installed in your computer, then run:
+
+```
+pastebin get 6PcJEVVC tape.lua
+mv tape.lua /usr/bin/tape
+```
+
+After that, you can run `tape` from the shell.
+
+The script is also included in the mod's resources at `assets/audio_perf/loot/tape/usr/bin/tape.lua` inside the jar, but the recommended method is to download it via Pastebin.
 
 ## Writing audio to a tape
 
@@ -82,8 +91,9 @@ This mod receives a **low update frequency** — it is maintained in spare time 
 - [music.madefor.cc](https://github.com/SquidDev-CC/music.madefor.cc) — a handy DFPWM converter.
 
 ## TODO
-- [ ] "tape" program diskette
 - [ ] proper audio cable texture
+- [x] fix "tape speed" command
+
 ## License
 
 WTFPL — Do What The Fuck You Want To Public License, Version 2.
