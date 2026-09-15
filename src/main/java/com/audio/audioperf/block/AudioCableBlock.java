@@ -1,5 +1,7 @@
 package com.audio.audioperf.block;
 
+import com.audio.audioperf.AudioPerf;
+import com.audio.audioperf.api.audio.IAudioColored;
 import com.audio.audioperf.tile.TileAudioCable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -8,6 +10,7 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -121,11 +124,24 @@ public class AudioCableBlock extends Block implements EntityBlock {
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (stack.getItem() instanceof ShearsItem && level.getBlockEntity(pos) instanceof TileAudioCable) {
+            // Cutting works instantly in any gamemode and always drops the cable.
+            if (!level.isClientSide) {
+                Block.popResource(level, pos, new ItemStack(AudioPerf.AUDIO_CABLE.get()));
+                level.levelEvent(null, 2001, pos, Block.getId(state));
+                level.removeBlock(pos, false);
+                if (!player.getAbilities().instabuild && stack.isDamageableItem()) {
+                    stack.setDamageValue(stack.getDamageValue() + 1);
+                    if (stack.getDamageValue() >= stack.getMaxDamage()) {
+                        stack.shrink(1);
+                    }
+                }
+            }
+            return ItemInteractionResult.sidedSuccess(level.isClientSide);
+        }
         if (stack.getItem() instanceof DyeItem dye && level.getBlockEntity(pos) instanceof TileAudioCable cable) {
             if (!level.isClientSide) {
-                int color = dye.getDyeColor() == net.minecraft.world.item.DyeColor.WHITE
-                        ? 0xCCCCCC
-                        : dye.getDyeColor().getTextureDiffuseColor() & 0xFFFFFF;
+                int color = IAudioColored.dyeColor(dye);
                 if (cable.getColor() != color) {
                     cable.setColor(color);
                     cable.refreshConnections();
