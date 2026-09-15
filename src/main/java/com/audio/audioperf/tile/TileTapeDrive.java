@@ -77,6 +77,9 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
 
     private TapeDriveState state;
     private String storageName = "";
+    // Ticks since the rewind loop sound was last played. The clip is ~1.45s,
+    // while a full rewind/forward can take many seconds, so it must be replayed.
+    private int rewindSoundCooldown = 0;
 
     public TileTapeDrive(BlockPos pos, BlockState state) {
         super(AudioPerfBlockEntities.TAPE_DRIVE.get(), pos, state);
@@ -131,8 +134,7 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
             // here (not in tick), because seeking states are always entered through
             // switchState, so the state transition is invisible to tick().
             if (level != null && !level.isClientSide && (s == State.REWINDING || s == State.FORWARDING)) {
-                level.playSound(null, worldPosition, AudioPerf.TAPE_REWIND_SOUND.get(),
-                        net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
+                playRewindSound();
             }
             state.switchState(level, s);
             if (level != null && !level.isClientSide) {
@@ -199,10 +201,29 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
             }
             pkt.sendPacket();
         }
+        // Repeat the rewind loop sound until seeking ends. The clip is ~1.45s
+        // (~29 ticks), so replay it just before it would run out.
+        if (!level.isClientSide) {
+            State cur = getEnumState();
+            if (cur == State.REWINDING || cur == State.FORWARDING) {
+                if (++rewindSoundCooldown >= 28) {
+                    playRewindSound();
+                }
+            } else {
+                rewindSoundCooldown = 0;
+            }
+        }
         if (!level.isClientSide && st != getEnumState()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             setChanged();
         }
+    }
+
+    private void playRewindSound() {
+        if (level == null || level.isClientSide) return;
+        level.playSound(null, worldPosition, AudioPerf.TAPE_REWIND_SOUND.get(),
+                net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
+        rewindSoundCooldown = 0;
     }
 
     // ========== Storage Management ==========
