@@ -3,6 +3,7 @@ package com.audio.audioperf.tile;
 import com.audio.audioperf.AudioPerf;
 import com.audio.audioperf.api.audio.AudioPacket;
 import com.audio.audioperf.api.audio.AudioPacketDFPWM;
+import com.audio.audioperf.api.audio.IAudioColored;
 import com.audio.audioperf.api.audio.IAudioReceiver;
 import com.audio.audioperf.api.audio.IAudioSource;
 import com.audio.audioperf.api.tape.IItemTapeStorage;
@@ -44,7 +45,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSource, MenuProvider {
+public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSource, IAudioColored, MenuProvider {
 
     private final IAudioReceiver internalSpeaker = new IAudioReceiver() {
         @Override
@@ -77,6 +78,7 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
 
     private TapeDriveState state;
     private String storageName = "";
+    private int color = IAudioColored.DEFAULT_COLOR;
     // Ticks since the rewind loop sound was last played. The clip is ~1.45s,
     // while a full rewind/forward can take many seconds, so it must be replayed.
     private int rewindSoundCooldown = 0;
@@ -191,6 +193,10 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
             for (Direction dir : Direction.values()) {
                 BlockEntity tile = level.getBlockEntity(worldPosition.relative(dir));
                 if (tile instanceof IAudioReceiver receiver) {
+                    // A cable with a different paint does not receive audio.
+                    if (tile instanceof IAudioColored colored && colored.getColor() != this.color) {
+                        continue;
+                    }
                     receiver.receivePacket(pkt, dir.getOpposite());
                 }
             }
@@ -202,11 +208,13 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
             pkt.sendPacket();
         }
         // Repeat the rewind loop sound until seeking ends. The clip is ~1.45s
-        // (~29 ticks), so replay it just before it would run out.
+        // (~29 ticks), so replay it just before it would run out. The replay is
+        // skipped when the remaining seek distance is shorter than one more
+        // replay, so the sound never keeps playing after the rewind ends.
         if (!level.isClientSide) {
             State cur = getEnumState();
             if (cur == State.REWINDING || cur == State.FORWARDING) {
-                if (++rewindSoundCooldown >= 28) {
+                if (++rewindSoundCooldown >= 28 && hasRewindSoundRoom(cur)) {
                     playRewindSound();
                 }
             } else {
@@ -224,6 +232,20 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
         level.playSound(null, worldPosition, AudioPerf.TAPE_REWIND_SOUND.get(),
                 net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
         rewindSoundCooldown = 0;
+    }
+
+    /**
+     * True when seeking still has at least one replay interval of distance
+     * left. Seeking moves 2048 bytes per tick and the replay interval is 28
+     * ticks, so a replay started with less distance left would outlast the
+     * rewind and keep playing after it ends.
+     */
+    private boolean hasRewindSoundRoom(State cur) {
+        if (state.getStorage() == null) return false;
+        int remaining = cur == State.REWINDING
+                ? state.getStorage().getPosition()
+                : state.getStorage().getSize() - state.getStorage().getPosition();
+        return remaining > 2048 * 28;
     }
 
     // ========== Storage Management ==========
@@ -292,6 +314,9 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
         if (tag.contains("inv")) {
             inventory.deserializeNBT(registries, tag.getCompound("inv"));
         }
+        if (tag.contains("color")) {
+            color = tag.getInt("color");
+        }
         loadStorage();
         // If there is no tape, the drive must not resume a playback/seek state.
         if (state.getStorage() == null) {
@@ -308,12 +333,14 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
             tag.putByte("vo", (byte) state.soundVolume);
         }
         tag.put("inv", inventory.serializeNBT(registries));
+        tag.putInt("color", color);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         tag.putByte("state", (byte) state.getState().ordinal());
+        tag.putInt("color", color);
         return tag;
     }
 
@@ -322,6 +349,9 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
         super.handleUpdateTag(tag, registries);
         if (tag.contains("state")) {
             state.setState(State.VALUES[tag.getByte("state")]);
+        }
+        if (tag.contains("color")) {
+            color = tag.getInt("color");
         }
     }
 
@@ -332,8 +362,25 @@ public class TileTapeDrive extends BlockEntityEnvironment implements IAudioSourc
 
     @Override
     public boolean connectsAudio(Direction side) {
-        return side != getBlockState().getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        if (side == getBlockState().getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING)) {
+            return false;
+        }
+        // A cable only connects when its paint matches the tape drive paint.
+        if (level != null) {
+            BlockPos neighborPos = worldPosition.relative(side);
+            if (level.isLoaded(neighborPos) && level.getBlockEntity(neighborPos) instanceof IAudioColored colored
+                    && colored.getColor() != this.color) {
+                return false;
+            }
+        }
+        return true;
     }
+
+    @Override
+    public int getColor() { return color; }
+
+    @Override
+    public void setColor(int color) { this.color = color; setChanged(); }
 
     // ========== Menu Provider ==========
 

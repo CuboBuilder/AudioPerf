@@ -1,6 +1,7 @@
 package com.audio.audioperf.network;
 
 import com.audio.audioperf.AudioPerf;
+import com.audio.audioperf.api.audio.IAudioColored;
 import com.audio.audioperf.tile.TileAudioCable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -36,9 +37,11 @@ public record AudioCableColorPayload(BlockPos pos, int color) implements CustomP
     public static void handle(AudioCableColorPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             Level level = context.player().level();
-            if (level.getBlockEntity(payload.pos) instanceof TileAudioCable cable) {
-                cable.setColor(payload.color);
-                cable.refreshConnections();
+            if (level.getBlockEntity(payload.pos) instanceof IAudioColored colored) {
+                colored.setColor(payload.color);
+                if (colored instanceof TileAudioCable cable) {
+                    cable.refreshConnections();
+                }
                 if (level.isClientSide) {
                     forceRerender(level, payload.pos);
                 }

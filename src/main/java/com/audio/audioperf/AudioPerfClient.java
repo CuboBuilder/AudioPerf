@@ -36,11 +36,19 @@ public class AudioPerfClient {
 
     private void onRegisterBlockColors(RegisterColorHandlersEvent.Block event) {
         event.register((state, level, pos, tintIndex) -> {
-                    if (level != null && pos != null && level.getBlockEntity(pos) instanceof com.audio.audioperf.tile.TileAudioCable cable) {
+                    if (tintIndex == 0 && level != null && pos != null && level.getBlockEntity(pos) instanceof com.audio.audioperf.tile.TileAudioCable cable) {
                         return cable.getColor() | 0xFF000000;
                     }
                     return 0xFFCCCCCC;
                 }, AudioPerf.AUDIO_CABLE.get());
+        event.register((state, level, pos, tintIndex) -> {
+                    if (tintIndex == 0 && level != null && pos != null && level.getBlockEntity(pos) instanceof com.audio.audioperf.api.audio.IAudioColored colored
+                            && colored.getColor() != com.audio.audioperf.api.audio.IAudioColored.DEFAULT_COLOR) {
+                        return colored.getColor() | 0xFF000000;
+                    }
+                    // Unpainted machines render untinted so existing textures look unchanged.
+                    return 0xFFFFFFFF;
+                }, AudioPerf.SPEAKER.get(), AudioPerf.TAPE_DRIVE.get());
     }
 
     private void onClientDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {

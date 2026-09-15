@@ -1,6 +1,7 @@
 package com.audio.audioperf.tile;
 
 import com.audio.audioperf.api.audio.AudioPacket;
+import com.audio.audioperf.api.audio.IAudioColored;
 import com.audio.audioperf.api.audio.IAudioConnection;
 import com.audio.audioperf.api.audio.IAudioReceiver;
 import com.audio.audioperf.audio.AudioUtils;
@@ -20,14 +21,14 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.HashSet;
 import java.util.Set;
 
-public class TileAudioCable extends BlockEntity implements IAudioReceiver {
+public class TileAudioCable extends BlockEntity implements IAudioReceiver, IAudioColored {
 
     private static final double CORE_MIN = 0.3125;
     private static final double CORE_MAX = 0.6875;
     private static final double ARM_LENGTH = 0.375;
 
     private final Set<Integer> packetIds = new HashSet<>();
-    private int color = 0xCCCCCC; // LightGray
+    private int color = IAudioColored.DEFAULT_COLOR; // LightGray
     private VoxelShape cachedShape = null;
 
     public TileAudioCable(BlockPos pos, BlockState state) {
@@ -86,6 +87,10 @@ public class TileAudioCable extends BlockEntity implements IAudioReceiver {
             return cable.getColor() == this.color;
         }
         if (neighbor instanceof IAudioConnection conn) {
+            // Painted audio blocks only connect on matching paint.
+            if (neighbor instanceof IAudioColored colored && colored.getColor() != this.color) {
+                return false;
+            }
             return conn.connectsAudio(side.getOpposite());
         }
         return false;
@@ -122,7 +127,9 @@ public class TileAudioCable extends BlockEntity implements IAudioReceiver {
         return AudioUtils.positionId(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ());
     }
 
+    @Override
     public int getColor() { return color; }
+    @Override
     public void setColor(int color) { this.color = color; setChanged(); }
 
     @Override
