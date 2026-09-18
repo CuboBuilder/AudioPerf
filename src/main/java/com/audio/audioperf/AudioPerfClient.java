@@ -9,6 +9,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -20,6 +21,7 @@ public class AudioPerfClient {
         modEventBus.addListener(this::onClientSetup);
         modEventBus.addListener(this::onRegisterScreens);
         modEventBus.addListener(this::onRegisterBlockColors);
+        modEventBus.addListener(this::onModifyBakingResult);
         NeoForge.EVENT_BUS.addListener(this::onClientDisconnect);
         NeoForge.EVENT_BUS.addListener(this::registerLootDisks);
     }
@@ -49,6 +51,16 @@ public class AudioPerfClient {
                     // Unpainted machines render untinted so existing textures look unchanged.
                     return 0xFFFFFFFF;
                 }, AudioPerf.SPEAKER.get(), AudioPerf.TAPE_DRIVE.get());
+    }
+
+    private void onModifyBakingResult(ModelEvent.ModifyBakingResult event) {
+        // Wrap every cable variant so cased cables render as the casing block.
+        for (var entry : event.getModels().entrySet()) {
+            net.minecraft.resources.ResourceLocation key = entry.getKey();
+            if (key.getNamespace().equals(AudioPerf.MODID) && key.getPath().startsWith("block/audio_cable/")) {
+                entry.setValue(new com.audio.audioperf.client.AudioCableBakedModel(entry.getValue()));
+            }
+        }
     }
 
     private void onClientDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {

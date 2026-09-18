@@ -8,7 +8,9 @@ import com.audio.audioperf.audio.AudioUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -17,6 +19,9 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.data.ModelProperty;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -30,6 +35,10 @@ public class TileAudioCable extends BlockEntity implements IAudioReceiver, IAudi
     private final Set<Integer> packetIds = new HashSet<>();
     private int color = IAudioColored.DEFAULT_COLOR; // LightGray
     private VoxelShape cachedShape = null;
+    /** Solid-block disguise set by right-clicking with a block, or null. */
+    private BlockState casing = null;
+
+    public static final ModelProperty<BlockState> CASING_PROPERTY = new ModelProperty<>();
 
     public TileAudioCable(BlockPos pos, BlockState state) {
         super(AudioPerfBlockEntities.AUDIO_CABLE.get(), pos, state);
@@ -132,10 +141,29 @@ public class TileAudioCable extends BlockEntity implements IAudioReceiver, IAudi
     @Override
     public void setColor(int color) { this.color = color; setChanged(); }
 
+    public @Nullable BlockState getCasing() { return casing; }
+
+    public void setCasing(@Nullable BlockState casing) {
+        this.casing = casing;
+        setChanged();
+        requestModelDataUpdate();
+    }
+
+    public boolean hasCasing() { return casing != null; }
+
+    @Override
+    public ModelData getModelData() {
+        if (casing == null) return ModelData.EMPTY;
+        return ModelData.builder().with(CASING_PROPERTY, casing).build();
+    }
+
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         tag.putInt("color", color);
+        if (casing != null) {
+            tag.put("casing", NbtUtils.writeBlockState(casing));
+        }
         return tag;
     }
 
@@ -145,6 +173,17 @@ public class TileAudioCable extends BlockEntity implements IAudioReceiver, IAudi
         if (tag.contains("color")) {
             color = tag.getInt("color");
         }
+        if (tag.contains("casing")) {
+            try {
+                casing = NbtUtils.readBlockState(registries.lookupOrThrow(Registries.BLOCK), tag.getCompound("casing"));
+                if (casing.isAir()) casing = null;
+            } catch (Exception e) {
+                casing = null;
+            }
+        } else {
+            casing = null;
+        }
+        requestModelDataUpdate();
     }
 
     @Override
@@ -153,11 +192,24 @@ public class TileAudioCable extends BlockEntity implements IAudioReceiver, IAudi
         if (tag.contains("color")) {
             color = tag.getInt("color");
         }
+        if (tag.contains("casing")) {
+            try {
+                casing = NbtUtils.readBlockState(registries.lookupOrThrow(Registries.BLOCK), tag.getCompound("casing"));
+                if (casing.isAir()) casing = null;
+            } catch (Exception e) {
+                casing = null;
+            }
+        } else {
+            casing = null;
+        }
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putInt("color", color);
+        if (casing != null) {
+            tag.put("casing", NbtUtils.writeBlockState(casing));
+        }
     }
 }

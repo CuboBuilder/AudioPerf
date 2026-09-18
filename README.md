@@ -94,7 +94,7 @@ This mod receives a **low update frequency** — it is maintained in spare time 
 - [x] Add ability to paint audio cables
 - [ ] Add audio cables casing
 - [ ] Update tape program
-- [ ] Fix audio cable texture
+- [x] Fix audio cable texture
 - [ ] Add new block - Tape Cloner
 
 ## License
