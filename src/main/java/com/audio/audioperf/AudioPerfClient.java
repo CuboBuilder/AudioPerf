@@ -56,7 +56,7 @@ public class AudioPerfClient {
     private void onModifyBakingResult(ModelEvent.ModifyBakingResult event) {
         // Wrap every cable variant so cased cables render as the casing block.
         for (var entry : event.getModels().entrySet()) {
-            net.minecraft.resources.ResourceLocation key = entry.getKey();
+            net.minecraft.client.resources.model.ModelResourceLocation key = entry.getKey();
             if (key.getNamespace().equals(AudioPerf.MODID) && key.getPath().startsWith("block/audio_cable/")) {
                 entry.setValue(new com.audio.audioperf.client.AudioCableBakedModel(entry.getValue()));
             }
